@@ -20,6 +20,7 @@ namespace ErrorCodes
     extern const int CANNOT_READ_ALL_DATA;
     extern const int CANNOT_READ_ARRAY_FROM_TEXT;
     extern const int LOGICAL_ERROR;
+    extern const int SIZES_OF_ARRAYS_DOESNT_MATCH;
 }
 
 void SerializationArray::serializeBinary(const Field & field, WriteBuffer & ostr) const
@@ -441,6 +442,11 @@ static void deserializeTextImpl(IColumn & column, ReadBuffer & istr, Reader && r
             nested_column.popBack(size);
         throw;
     }
+
+    size_t dims = column_array.getDims();
+    if (dims > 0 && column_array.getDims() != size)
+        throw ParsingException(ErrorCodes::SIZES_OF_ARRAYS_DOESNT_MATCH,
+            "Size of input array: {} doesn't match size of array column: {}", size, column_array.getDims());
 
     offsets.push_back(offsets.back() + size);
 }

@@ -21,7 +21,9 @@ private:
     friend class COWHelper<IColumn, ColumnArray>;
 
     /** Create an array column with specified values and offsets. */
+    ColumnArray(MutableColumnPtr && nested_column, MutableColumnPtr && offsets_column, size_t _dims);
     ColumnArray(MutableColumnPtr && nested_column, MutableColumnPtr && offsets_column);
+    ColumnArray(MutableColumnPtr && nested_column, size_t _dims);
 
     /** Create an empty column of arrays with the type of values as in the column `nested_column` */
     explicit ColumnArray(MutableColumnPtr && nested_column);
@@ -50,14 +52,26 @@ public:
       */
     using Base = COWHelper<IColumn, ColumnArray>;
 
+
+    // Not sure what is the best way to include dims in the create template.
+    static MutablePtr create(const ColumnPtr & nested_column, const ColumnPtr & offsets_column, const size_t dims)
+    {
+        return Base::create(nested_column->assumeMutable(), offsets_column->assumeMutable(), dims);
+    }
+
+    static MutablePtr create(const ColumnPtr & nested_column, const size_t dims)
+    {
+        return Base::create(nested_column->assumeMutable(), dims);
+    }
+
     static Ptr create(const ColumnPtr & nested_column, const ColumnPtr & offsets_column)
     {
-        return ColumnArray::create(nested_column->assumeMutable(), offsets_column->assumeMutable());
+        return ColumnArray::create(nested_column, offsets_column, static_cast<size_t>(0));
     }
 
     static Ptr create(const ColumnPtr & nested_column)
     {
-        return ColumnArray::create(nested_column->assumeMutable());
+        return ColumnArray::create(nested_column, static_cast<size_t>(0));
     }
 
     template <typename ... Args>
@@ -142,6 +156,8 @@ public:
     const ColumnPtr & getOffsetsPtr() const { return offsets; }
     ColumnPtr & getOffsetsPtr() { return offsets; }
 
+    size_t getDims() const { return dims; }
+
     MutableColumns scatter(ColumnIndex num_columns, const Selector & selector) const override
     {
         return scatterImpl<ColumnArray>(num_columns, selector);
@@ -175,6 +191,7 @@ public:
 private:
     WrappedPtr data;
     WrappedPtr offsets;
+    size_t dims;
 
     size_t ALWAYS_INLINE offsetAt(ssize_t i) const { return getOffsets()[i - 1]; }
     size_t ALWAYS_INLINE sizeAt(ssize_t i) const { return getOffsets()[i] - getOffsets()[i - 1]; }

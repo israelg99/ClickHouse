@@ -2,6 +2,7 @@
 
 #include <DataTypes/IDataType.h>
 #include <DataTypes/Serializations/SerializationArray.h>
+#include <Columns/ColumnArray.h>
 
 
 namespace DB
@@ -13,18 +14,17 @@ class DataTypeArray final : public IDataType
 private:
     /// The type of array elements.
     DataTypePtr nested;
+    size_t size;
 
 public:
     static constexpr bool is_parametric = true;
 
     explicit DataTypeArray(const DataTypePtr & nested_);
+    explicit DataTypeArray(const DataTypePtr & nested_, const size_t & size);
 
     TypeIndex getTypeId() const override { return TypeIndex::Array; }
 
-    std::string doGetName() const override
-    {
-        return "Array(" + nested->getName() + ")";
-    }
+    std::string doGetName() const override;
 
     const char * getFamilyName() const override
     {
