@@ -14,13 +14,13 @@ class DataTypeArray final : public IDataType
 private:
     /// The type of array elements.
     DataTypePtr nested;
-    size_t size;
+    size_t dims;
 
 public:
     static constexpr bool is_parametric = true;
 
     explicit DataTypeArray(const DataTypePtr & nested_);
-    explicit DataTypeArray(const DataTypePtr & nested_, const size_t & size);
+    explicit DataTypeArray(const DataTypePtr & nested_, const size_t & dims);
 
     TypeIndex getTypeId() const override { return TypeIndex::Array; }
 
@@ -41,6 +41,8 @@ public:
     Field getDefault() const override;
 
     bool equals(const IDataType & rhs) const override;
+
+    size_t getDims() const { return dims; }
 
     bool isParametric() const override { return true; }
     bool haveSubtypes() const override { return true; }

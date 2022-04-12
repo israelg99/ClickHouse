@@ -27,7 +27,7 @@ DataTypePtr recursiveRemoveLowCardinality(const DataTypePtr & type)
         return type;
 
     if (const auto * array_type = typeid_cast<const DataTypeArray *>(type.get()))
-        return std::make_shared<DataTypeArray>(recursiveRemoveLowCardinality(array_type->getNestedType()));
+        return std::make_shared<DataTypeArray>(recursiveRemoveLowCardinality(array_type->getNestedType()), array_type->getDims());
 
     if (const auto * tuple_type = typeid_cast<const DataTypeTuple *>(type.get()))
     {

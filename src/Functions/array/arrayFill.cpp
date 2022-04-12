@@ -119,7 +119,8 @@ struct ArrayFillImpl
 
         return ColumnArray::create(
             std::move(column_data),
-            array.getOffsetsPtr()
+            array.getOffsetsPtr(),
+            array.getDims()
         );
     }
 };

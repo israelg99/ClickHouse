@@ -45,7 +45,10 @@ public:
 
         DataTypes types = {nested_type, arguments[1]};
 
-        return std::make_shared<DataTypeArray>(getLeastSupertype(types));
+        size_t dims = array_type->getDims();
+        dims = dims > 0 ? dims+1 : 0;
+
+        return std::make_shared<DataTypeArray>(getLeastSupertype(types), dims);
     }
 
     ColumnPtr executeImpl(const ColumnsWithTypeAndName & arguments, const DataTypePtr & return_type, size_t input_rows_count) const override

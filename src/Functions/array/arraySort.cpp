@@ -57,7 +57,7 @@ struct ArraySortImpl
             current_offset = next_offset;
         }
 
-        return ColumnArray::create(array.getData().permute(permutation, 0), array.getOffsetsPtr());
+        return ColumnArray::create(array.getData().permute(permutation, 0), array.getOffsetsPtr(), array.getDims());
     }
 };
 

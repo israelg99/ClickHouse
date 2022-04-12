@@ -43,7 +43,7 @@ public:
             throw Exception("First argument for function " + getName() + " must be an array but it has type "
                 + arguments[0]->getName() + ".", ErrorCodes::ILLEGAL_TYPE_OF_ARGUMENT);
 
-        return std::make_shared<DataTypeArray>(std::make_shared<DataTypeUInt32>());
+        return std::make_shared<DataTypeArray>(std::make_shared<DataTypeUInt32>(), array_type->getDims());
     }
 
     ColumnPtr executeImpl(const ColumnsWithTypeAndName & arguments, const DataTypePtr &, size_t) const override
@@ -64,7 +64,7 @@ public:
                 prev_off = off;
             }
 
-            return ColumnArray::create(std::move(res_nested), array->getOffsetsPtr());
+            return ColumnArray::create(std::move(res_nested), array->getOffsetsPtr(), array->getDims());
         }
         else
         {

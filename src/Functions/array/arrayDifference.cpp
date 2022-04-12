@@ -1,6 +1,5 @@
 #include <Columns/ColumnDecimal.h>
 #include <Columns/ColumnsNumber.h>
-#include <DataTypes/DataTypesDecimal.h>
 #include <DataTypes/DataTypesNumber.h>
 #include <Functions/FunctionFactory.h>
 
@@ -123,7 +122,7 @@ struct ArrayDifferenceImpl
             pos = offset;
         }
 
-        res_ptr = ColumnArray::create(std::move(res_nested), array.getOffsetsPtr());
+        res_ptr = ColumnArray::create(std::move(res_nested), array.getOffsetsPtr(), array.getDims());
         return true;
     }
 

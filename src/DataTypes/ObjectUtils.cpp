@@ -108,7 +108,7 @@ DataTypePtr getDataTypeByColumn(const IColumn & column)
         return DataTypeFactory::instance().get(String(magic_enum::enum_name(idx)));
 
     if (const auto * column_array = checkAndGetColumn<ColumnArray>(&column))
-        return std::make_shared<DataTypeArray>(getDataTypeByColumn(column_array->getData()));
+        return std::make_shared<DataTypeArray>(getDataTypeByColumn(column_array->getData()), column_array->getDims());
 
     if (const auto * column_nullable = checkAndGetColumn<ColumnNullable>(&column))
         return makeNullable(getDataTypeByColumn(column_nullable->getNestedColumn()));

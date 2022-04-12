@@ -93,7 +93,7 @@ struct ArrayCumSumNonNegativeImpl
         typename ColVecResult::Container & res_values = res_nested->getData();
         res_values.resize(data.size());
         implVector(offsets.size(), offsets.data(), res_values.data(), data.data());
-        res_ptr = ColumnArray::create(std::move(res_nested), array.getOffsetsPtr());
+        res_ptr = ColumnArray::create(std::move(res_nested), array.getOffsetsPtr(), array.getDims());
         return true;
 
     }

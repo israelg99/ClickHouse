@@ -2,11 +2,9 @@
 
 #include <Formats/FormatSettings.h>
 #include <DataTypes/DataTypeArray.h>
-#include <DataTypes/DataTypesNumber.h>
 #include <DataTypes/DataTypeFactory.h>
 #include <DataTypes/Serializations/SerializationArray.h>
 
-#include <Parsers/IAST.h>
 #include <Parsers/ASTLiteral.h>
 
 #include <Common/typeid_cast.h>
@@ -27,23 +25,23 @@ namespace ErrorCodes
 
 
 DataTypeArray::DataTypeArray(const DataTypePtr & nested_)
-    : nested{nested_}, size{0}
+    : nested{nested_}, dims{0}
 {
 }
 
-DataTypeArray::DataTypeArray(const DataTypePtr & nested_, const size_t & _size)
-    : nested{nested_}, size{_size}
+DataTypeArray::DataTypeArray(const DataTypePtr & nested_, const size_t & _dims)
+    : nested{nested_}, dims{_dims}
 {
 }
 
 std::string DataTypeArray::doGetName() const
 {
-    return "Array(" + nested->getName() + ", " + std::to_string(size) + ")";
+    return "Array(" + nested->getName() + ", " + std::to_string(dims) + ")";
 }
 
 MutableColumnPtr DataTypeArray::createColumn() const
 {
-    return ColumnArray::create(nested->createColumn(), ColumnArray::ColumnOffsets::create(), size);
+    return ColumnArray::create(nested->createColumn(), ColumnArray::ColumnOffsets::create(), dims);
 }
 
 
