@@ -16,7 +16,7 @@ struct ArraySinkCreator;
 template <typename Type, typename... Types>
 struct ArraySinkCreator<Type, Types...>
 {
-    static std::unique_ptr<IArraySink> create(IColumn & values, ColumnArray::Offsets & offsets, size_t column_size)
+    static std::unique_ptr<IArraySink> create(IColumn & values, ColumnArray::Offsets & offsets, size_t column_size, size_t dims)
     {
         using ColVecType = ColumnVectorOrDecimal<Type>;
 
@@ -32,22 +32,22 @@ struct ArraySinkCreator<Type, Types...>
         if (typeid_cast<ColVecType *>(not_null_values))
         {
             if (is_nullable)
-                return std::make_unique<NullableArraySink<NumericArraySink<Type>>>(values, offsets, column_size);
-            return std::make_unique<NumericArraySink<Type>>(values, offsets, column_size);
+                return std::make_unique<NullableArraySink<NumericArraySink<Type>>>(values, offsets, column_size, dims);
+            return std::make_unique<NumericArraySink<Type>>(values, offsets, column_size, dims);
         }
 
-        return ArraySinkCreator<Types...>::create(values, offsets, column_size);
+        return ArraySinkCreator<Types...>::create(values, offsets, column_size, dims);
     }
 };
 
 template <>
 struct ArraySinkCreator<>
 {
-    static std::unique_ptr<IArraySink> create(IColumn & values, ColumnArray::Offsets & offsets, size_t column_size)
+    static std::unique_ptr<IArraySink> create(IColumn & values, ColumnArray::Offsets & offsets, size_t column_size, size_t dims)
     {
         if (typeid_cast<ColumnNullable *>(&values))
-            return std::make_unique<NullableArraySink<GenericArraySink>>(values, offsets, column_size);
-        return std::make_unique<GenericArraySink>(values, offsets, column_size);
+            return std::make_unique<NullableArraySink<GenericArraySink>>(values, offsets, column_size, dims);
+        return std::make_unique<GenericArraySink>(values, offsets, column_size, dims);
     }
 };
 
@@ -56,6 +56,6 @@ struct ArraySinkCreator<>
 std::unique_ptr<IArraySink> createArraySink(ColumnArray & col, size_t column_size)
 {
     using Creator = TypeListChangeRoot<ArraySinkCreator, TypeListNumberWithUUID>;
-    return Creator::create(col.getData(), col.getOffsets(), column_size);
+    return Creator::create(col.getData(), col.getOffsets(), column_size, col.getDims());
 }
 }

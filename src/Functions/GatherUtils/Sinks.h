@@ -44,10 +44,11 @@ struct NumericArraySink : public ArraySinkImpl<NumericArraySink<T>>
     typename ColumnArray::Offsets & offsets;
 
     size_t row_num = 0;
+    size_t dims = 0;
     ColumnArray::Offset current_offset = 0;
 
-    NumericArraySink(IColumn & elements_, ColumnArray::Offsets & offsets_, size_t column_size)
-            : elements(assert_cast<ColVecType&>(elements_).getData()), offsets(offsets_)
+    NumericArraySink(IColumn & elements_, ColumnArray::Offsets & offsets_, size_t column_size, size_t dims_)
+            : elements(assert_cast<ColVecType&>(elements_).getData()), offsets(offsets_), dims(dims_)
     {
         offsets.resize(column_size);
     }
@@ -162,9 +163,10 @@ struct GenericArraySink : public ArraySinkImpl<GenericArraySink>
 
     size_t row_num = 0;
     ColumnArray::Offset current_offset = 0;
+    size_t dims = 0;
 
-    GenericArraySink(IColumn & elements_, ColumnArray::Offsets & offsets_, size_t column_size)
-            : elements(elements_), offsets(offsets_)
+    GenericArraySink(IColumn & elements_, ColumnArray::Offsets & offsets_, size_t column_size, size_t dims_)
+            : elements(elements_), offsets(offsets_), dims(dims_)
     {
         offsets.resize(column_size);
     }
@@ -200,8 +202,8 @@ struct NullableArraySink : public ArraySink
 
     NullMap & null_map;
 
-    NullableArraySink(IColumn & elements_, ColumnArray::Offsets & offsets_, size_t column_size)
-        : ArraySink(assert_cast<ColumnNullable &>(elements_).getNestedColumn(), offsets_, column_size)
+    NullableArraySink(IColumn & elements_, ColumnArray::Offsets & offsets_, size_t column_size, size_t dims_)
+        : ArraySink(assert_cast<ColumnNullable &>(elements_).getNestedColumn(), offsets_, column_size, dims_)
         , null_map(assert_cast<ColumnNullable &>(elements_).getNullMapData())
     {
     }

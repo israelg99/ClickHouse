@@ -64,7 +64,7 @@ ColumnPtr recursiveRemoveLowCardinality(const ColumnPtr & column)
         if (data.get() == data_no_lc.get())
             return column;
 
-        return ColumnArray::create(data_no_lc, column_array->getOffsetsPtr());
+        return ColumnArray::create(data_no_lc, column_array->getOffsetsPtr(), column_array->getDims());
     }
 
     if (const auto * column_const = typeid_cast<const ColumnConst *>(column.get()))
@@ -153,7 +153,7 @@ ColumnPtr recursiveTypeConversion(const ColumnPtr & column, const DataTypePtr & 
 
             return ColumnArray::create(
                     recursiveTypeConversion(column_array->getDataPtr(), nested_from, nested_to),
-                    column_array->getOffsetsPtr());
+                    column_array->getOffsetsPtr(), column_array->getDims());
         }
     }
 

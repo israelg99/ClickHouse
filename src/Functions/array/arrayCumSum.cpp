@@ -3,6 +3,7 @@
 #include <DataTypes/DataTypesDecimal.h>
 #include <DataTypes/DataTypesNumber.h>
 #include <Functions/FunctionFactory.h>
+#include <base/logger_useful.h>
 
 #include "FunctionArrayMapped.h"
 
@@ -25,29 +26,28 @@ struct ArrayCumSumImpl
     static bool needExpression() { return false; }
     static bool needOneArray() { return false; }
 
-    static DataTypePtr getReturnType(const DataTypePtr & expression_return, const DataTypePtr & /*array_element*/)
+    static DataTypePtr getReturnType(const DataTypePtr & expression_return, const DataTypePtr & /* array_element */)
     {
         WhichDataType which(expression_return);
 
         if (which.isNativeUInt())
-            return std::make_shared<DataTypeArray>(std::make_shared<DataTypeUInt64>());
+            return std::make_shared<DataTypeArray>(std::make_shared<DataTypeUInt64>(), 2);
 
         if (which.isNativeInt())
-            return std::make_shared<DataTypeArray>(std::make_shared<DataTypeInt64>());
+            return std::make_shared<DataTypeArray>(std::make_shared<DataTypeInt64>(), 2);
 
         if (which.isFloat())
-            return std::make_shared<DataTypeArray>(std::make_shared<DataTypeFloat64>());
+            return std::make_shared<DataTypeArray>(std::make_shared<DataTypeFloat64>(), 2);
 
         if (which.isDecimal())
         {
             UInt32 scale = getDecimalScale(*expression_return);
             DataTypePtr nested = std::make_shared<DataTypeDecimal<Decimal128>>(DecimalUtils::max_precision<Decimal128>, scale);
-            return std::make_shared<DataTypeArray>(nested);
+            return std::make_shared<DataTypeArray>(nested, 2);
         }
 
         throw Exception("arrayCumSum cannot add values of type " + expression_return->getName(), ErrorCodes::ILLEGAL_TYPE_OF_ARGUMENT);
     }
-
 
     template <typename Src, typename Dst>
     static void NO_SANITIZE_UNDEFINED implConst(
@@ -91,7 +91,7 @@ struct ArrayCumSumImpl
         using ColVecResult = ColumnVectorOrDecimal<Result>;
 
         const ColVecType * column = checkAndGetColumn<ColVecType>(&*mapped);
-
+        LOG_DEBUG(&Poco::Logger::get("FunctionArrayMapped"), "ArrayCumSumImpl: column = {}", std::to_string(array.getDims()));
         if (!column)
         {
             const ColumnConst * column_const = checkAndGetColumnConst<ColVecType>(&*mapped);
@@ -114,7 +114,8 @@ struct ArrayCumSumImpl
             typename ColVecResult::Container & res_values = res_nested->getData();
             res_values.resize(column_const->size());
             implConst(offsets.size(), offsets.data(), res_values.data(), x);
-            res_ptr = ColumnArray::create(std::move(res_nested), array.getOffsetsPtr());
+            LOG_DEBUG(&Poco::Logger::get("FunctionArrayMapped"), "2 ArrayCumSumImpl: column = {}", std::to_string(array.getDims()));
+            res_ptr = ColumnArray::create(std::move(res_nested), array.getOffsetsPtr(), array.getDims());
             return true;
         }
 
@@ -130,7 +131,8 @@ struct ArrayCumSumImpl
         typename ColVecResult::Container & res_values = res_nested->getData();
         res_values.resize(data.size());
         implVector(offsets.size(), offsets.data(), res_values.data(), data.data());
-        res_ptr = ColumnArray::create(std::move(res_nested), array.getOffsetsPtr(), array.getDims());
+        LOG_DEBUG(&Poco::Logger::get("FunctionArrayMapped"), "3 ArrayCumSumImpl: column = {}", std::to_string(array.getDims()));
+        res_ptr = ColumnArray::create(std::move(res_nested), array.getOffsetsPtr(), array.getDims());            LOG_DEBUG(&Poco::Logger::get("FunctionArrayMapped"), "2 ArrayCumSumImpl: column = {}", std::to_string(array.getDims()));
         return true;
 
     }

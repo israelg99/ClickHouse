@@ -182,7 +182,7 @@ ColumnPtr FunctionArrayIntersect::castRemoveNullable(const ColumnPtr & column, c
                             + data_type->getName() + " in function " + getName(), ErrorCodes::LOGICAL_ERROR};
 
         auto casted_column = castRemoveNullable(column_array->getDataPtr(), array_type->getNestedType());
-        return ColumnArray::create(casted_column, column_array->getOffsetsPtr());
+        return ColumnArray::create(casted_column, column_array->getOffsetsPtr(), column_array->getDims());
     }
     else if (const auto * column_tuple = checkAndGetColumn<ColumnTuple>(column.get()))
     {

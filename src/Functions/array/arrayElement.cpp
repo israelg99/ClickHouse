@@ -743,7 +743,7 @@ ColumnPtr FunctionArrayElement::executeTuple(const ColumnsWithTypeAndName & argu
     for (size_t i = 0; i < tuple_size; ++i)
     {
         ColumnWithTypeAndName array_of_tuple_section;
-        array_of_tuple_section.column = ColumnArray::create(tuple_columns[i], col_array->getOffsetsPtr());
+        array_of_tuple_section.column = ColumnArray::create(tuple_columns[i], col_array->getOffsetsPtr(), col_array->getDims());
         array_of_tuple_section.type = std::make_shared<DataTypeArray>(tuple_types[i]);
         temporary_results[0] = array_of_tuple_section;
 
@@ -1017,7 +1017,7 @@ ColumnPtr FunctionArrayElement::executeMap(
             "Illegal types of arguments: {}, {} for function {}",
             arguments[0].type->getName(), arguments[1].type->getName(), getName());
 
-    ColumnPtr values_array = ColumnArray::create(values_data.getPtr(), nested_column.getOffsetsPtr());
+    ColumnPtr values_array = ColumnArray::create(values_data.getPtr(), nested_column.getOffsetsPtr(), nested_column.getDims());
     if (col_const_map)
         values_array = ColumnConst::create(values_array, input_rows_count);
 
@@ -1118,8 +1118,8 @@ ColumnPtr FunctionArrayElement::executeImpl(const ColumnsWithTypeAndName & argum
             source_columns =
             {
                 {
-                    ColumnArray::create(nested_col, col_array->getOffsetsPtr()),
-                    std::make_shared<DataTypeArray>(input_type),
+                    ColumnArray::create(nested_col, col_array->getOffsetsPtr(), col_array->getDims()),
+                    std::make_shared<DataTypeArray>(input_type, col_array->getDims()),
                     ""
                 },
                 arguments[1],
@@ -1136,8 +1136,8 @@ ColumnPtr FunctionArrayElement::executeImpl(const ColumnsWithTypeAndName & argum
             source_columns =
             {
                 {
-                    ColumnConst::create(ColumnArray::create(nested_col, col_const_array->getOffsetsPtr()), input_rows_count),
-                    std::make_shared<DataTypeArray>(input_type),
+                    ColumnConst::create(ColumnArray::create(nested_col, col_const_array->getOffsetsPtr(), col_const_array->getDims()), input_rows_count),
+                    std::make_shared<DataTypeArray>(input_type, col_const_array->getDims()),
                     ""
                 },
                 arguments[1],

@@ -26,8 +26,8 @@ struct Selector : public ArraySourceSelector<Selector>
 
             auto & nullable_source = static_cast<NullableSource &>(source);
 
-            result = ColumnArray::create(nullable_source.createValuesColumn());
-            NullableSink sink(result->getData(), result->getOffsets(), source.getColumnSize());
+            result = ColumnArray::create(nullable_source.createValuesColumn(), nullable_source.getDims());
+            NullableSink sink(result->getData(), result->getOffsets(), source.getColumnSize(), result->getDims());
 
             if (is_const)
                 sliceFromLeftDynamicLength(static_cast<ConstSource<NullableSource> &>(source), sink, length_column);
@@ -36,8 +36,8 @@ struct Selector : public ArraySourceSelector<Selector>
         }
         else
         {
-            result = ColumnArray::create(source.createValuesColumn());
-            Sink sink(result->getData(), result->getOffsets(), source.getColumnSize());
+            result = ColumnArray::create(source.createValuesColumn(), source.getDims());
+            Sink sink(result->getData(), result->getOffsets(), source.getColumnSize(), result->getDims());
 
             if (is_const)
                 sliceFromLeftDynamicLength(static_cast<ConstSource<SourceType> &>(source), sink, length_column);

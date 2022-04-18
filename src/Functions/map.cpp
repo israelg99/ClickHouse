@@ -224,7 +224,7 @@ public:
         const auto & nested_column = col_map->getNestedColumn();
         const auto & keys_data = col_map->getNestedData().getColumn(0);
 
-        return ColumnArray::create(keys_data.getPtr(), nested_column.getOffsetsPtr());
+        return ColumnArray::create(keys_data.getPtr(), nested_column.getOffsetsPtr(), nested_column.getDims());
     }
 };
 
@@ -273,7 +273,7 @@ public:
         const auto & nested_column = col_map->getNestedColumn();
         const auto & values_data = col_map->getNestedData().getColumn(1);
 
-        return ColumnArray::create(values_data.getPtr(), nested_column.getOffsetsPtr());
+        return ColumnArray::create(values_data.getPtr(), nested_column.getOffsetsPtr(), nested_column.getDims());
     }
 };
 

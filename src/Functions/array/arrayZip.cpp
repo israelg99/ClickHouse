@@ -88,8 +88,9 @@ public:
             tuple_columns[i] = column_array->getDataPtr();
         }
 
+        const auto & first_array_column_array = static_cast<const ColumnArray &>(*first_array_column);
         return ColumnArray::create(
-            ColumnTuple::create(tuple_columns), static_cast<const ColumnArray &>(*first_array_column).getOffsetsPtr());
+            ColumnTuple::create(tuple_columns), first_array_column_array.getOffsetsPtr(), first_array_column_array.getDims());
     }
 };
 

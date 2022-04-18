@@ -37,15 +37,15 @@ struct ArrayConcat : public ArraySourceSelector<ArrayConcat>
             auto & nullable_source = static_cast<NullableSource &>(source);
 
 
-            result = ColumnArray::create(nullable_source.createValuesColumn());
-            NullableSink sink(result->getData(), result->getOffsets(), source.getColumnSize());
+            result = ColumnArray::create(nullable_source.createValuesColumn(), nullable_source.getDims());
+            NullableSink sink(result->getData(), result->getOffsets(), source.getColumnSize(), result->getDims());
 
             concat<NullableSource, NullableSink>(sources, std::move(sink));
         }
         else
         {
-            result = ColumnArray::create(source.createValuesColumn());
-            Sink sink(result->getData(), result->getOffsets(), source.getColumnSize());
+            result = ColumnArray::create(source.createValuesColumn(), source.getDims());
+            Sink sink(result->getData(), result->getOffsets(), source.getColumnSize(), result->getDims());
 
             concat<SourceType, Sink>(sources, std::move(sink));
         }

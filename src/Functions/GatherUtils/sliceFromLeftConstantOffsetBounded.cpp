@@ -26,8 +26,8 @@ struct SliceFromLeftConstantOffsetBoundedSelectArraySource
 
             auto & nullable_source = static_cast<NullableSource &>(source);
 
-            result = ColumnArray::create(nullable_source.createValuesColumn());
-            NullableSink sink(result->getData(), result->getOffsets(), source.getColumnSize());
+            result = ColumnArray::create(nullable_source.createValuesColumn(), nullable_source.getDims()-offset+length);
+            NullableSink sink(result->getData(), result->getOffsets(), source.getColumnSize(), result->getDims());
 
             if (is_const)
                 sliceFromLeftConstantOffsetBounded(static_cast<ConstSource<NullableSource> &>(source), sink, offset, length);
@@ -36,8 +36,8 @@ struct SliceFromLeftConstantOffsetBoundedSelectArraySource
         }
         else
         {
-            result = ColumnArray::create(source.createValuesColumn());
-            Sink sink(result->getData(), result->getOffsets(), source.getColumnSize());
+            result = ColumnArray::create(source.createValuesColumn(), source.getDims()-offset+length);
+            Sink sink(result->getData(), result->getOffsets(), source.getColumnSize(), result->getDims());
 
             if (is_const)
                 sliceFromLeftConstantOffsetBounded(static_cast<ConstSource<SourceType> &>(source), sink, offset, length);

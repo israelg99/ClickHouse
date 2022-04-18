@@ -4,6 +4,7 @@
 #include <DataTypes/DataTypeArray.h>
 #include <Columns/ColumnArray.h>
 #include <Common/typeid_cast.h>
+#include <base/logger_useful.h>
 
 
 namespace DB
@@ -37,7 +38,12 @@ public:
             throw Exception("First argument for function " + getName() + " must be an array but it has type "
                             + arguments[0]->getName() + ".", ErrorCodes::ILLEGAL_TYPE_OF_ARGUMENT);
 
-        return arguments[0];
+        auto nested_type = array_type->getNestedType();
+
+        size_t dims = array_type->getDims();
+        dims = dims > 0 ? dims-1 : 0;
+
+        return std::make_shared<DataTypeArray>(nested_type, dims);
     }
 
     ColumnPtr executeImpl(const ColumnsWithTypeAndName & arguments, const DataTypePtr & result_type, size_t input_rows_count) const override

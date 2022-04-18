@@ -97,7 +97,8 @@ struct ArrayFillImpl
             if (column_fill_const->getValue<UInt8>())
                 return ColumnArray::create(
                     array.getDataPtr(),
-                    array.getOffsetsPtr());
+                    array.getOffsetsPtr(),
+                    array.getDims());
 
             size_t array_begin = 0;
             size_t array_end = 0;

@@ -51,6 +51,7 @@ struct NumericArraySource : public ArraySourceImpl<NumericArraySource<T>>
 
     size_t row_num = 0;
     ColumnArray::Offset prev_offset = 0;
+    size_t dims = 0;
 
     MutableColumnPtr createValuesColumn()
     {
@@ -59,7 +60,9 @@ struct NumericArraySource : public ArraySourceImpl<NumericArraySource<T>>
 
     explicit NumericArraySource(const ColumnArray & arr)
             : column(typeid_cast<const ColVecType &>(arr.getData()))
-            , elements(typeid_cast<const ColVecType &>(arr.getData()).getData()), offsets(arr.getOffsets())
+            , elements(typeid_cast<const ColVecType &>(arr.getData()).getData())
+            , offsets(arr.getOffsets())
+            , dims(arr.getDims())
     {
     }
 
@@ -93,6 +96,11 @@ struct NumericArraySource : public ArraySourceImpl<NumericArraySource<T>>
     size_t getColumnSize() const override
     {
         return offsets.size();
+    }
+
+    size_t getDims() const override
+    {
+      return dims;
     }
 
     size_t getElementSize() const
@@ -557,6 +565,7 @@ struct GenericArraySource : public ArraySourceImpl<GenericArraySource>
 
     size_t row_num = 0;
     ColumnArray::Offset prev_offset = 0;
+    size_t dims = 0;
 
     MutableColumnPtr createValuesColumn()
     {
@@ -564,7 +573,7 @@ struct GenericArraySource : public ArraySourceImpl<GenericArraySource>
     }
 
     explicit GenericArraySource(const ColumnArray & arr)
-            : elements(arr.getData()), offsets(arr.getOffsets())
+            : elements(arr.getData()), offsets(arr.getOffsets()), dims(arr.getDims())
     {
     }
 
@@ -597,6 +606,11 @@ struct GenericArraySource : public ArraySourceImpl<GenericArraySource>
     size_t getColumnSize() const override
     {
         return offsets.size();
+    }
+
+    size_t getDims() const override
+    {
+        return dims;
     }
 
     size_t getElementSize() const

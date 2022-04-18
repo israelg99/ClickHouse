@@ -26,8 +26,8 @@ struct SliceDynamicOffsetBoundedSelectArraySource : public ArraySourceSelector<S
 
             auto & nullable_source = static_cast<NullableSource &>(source);
 
-            result = ColumnArray::create(nullable_source.createValuesColumn());
-            NullableSink sink(result->getData(), result->getOffsets(), source.getColumnSize());
+            result = ColumnArray::create(nullable_source.createValuesColumn(), nullable_source.getDims());
+            NullableSink sink(result->getData(), result->getOffsets(), source.getColumnSize(), result->getDims());
 
             if (is_const)
                 sliceDynamicOffsetBounded(static_cast<ConstSource<NullableSource> &>(source), sink, offset_column, length_column);
@@ -36,8 +36,8 @@ struct SliceDynamicOffsetBoundedSelectArraySource : public ArraySourceSelector<S
         }
         else
         {
-            result = ColumnArray::create(source.createValuesColumn());
-            Sink sink(result->getData(), result->getOffsets(), source.getColumnSize());
+            result = ColumnArray::create(source.createValuesColumn(), source.getDims());
+            Sink sink(result->getData(), result->getOffsets(), source.getColumnSize(), result->getDims());
 
             if (is_const)
                 sliceDynamicOffsetBounded(static_cast<ConstSource<SourceType> &>(source), sink, offset_column, length_column);
