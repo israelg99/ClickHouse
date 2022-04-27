@@ -39,7 +39,7 @@ ColumnPtr recreateColumnWithDefaultValues(
         return ColumnArray::create(
             recreateColumnWithDefaultValues(
                 column_array->getDataPtr(), scalar_type, num_dimensions - 1),
-                IColumn::mutate(column_array->getOffsetsPtr()));
+                IColumn::mutate(column_array->getOffsetsPtr()), column_array->getDims());
     }
 
     return createArrayOfType(scalar_type, num_dimensions)->createColumn()->cloneResized(column->size());

@@ -2907,7 +2907,7 @@ private:
                 auto result_column = nested_function(nested_columns, to_nested_type, nullable_source, nested_columns.front().column->size());
 
                 /// set converted nested column to result
-                return ColumnArray::create(result_column, col_array->getOffsetsPtr());
+                return ColumnArray::create(result_column, col_array->getOffsetsPtr(), col_array->getDims());
             }
             else
             {
